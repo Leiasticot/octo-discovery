@@ -103,6 +103,8 @@ Run:
 ```bash
 python main.py
 ```
+Or use a cron to auto-launch it
+
 ### Behavior:
 
 If the current weekly playlist name matches what’s stored in data.json, the script stops (prevents duplicates).
