@@ -88,7 +88,7 @@ def main():
         if best_match:
             # 1. locally found
             if best_match['isexternal'] == False:
-                print(f"Local found (Excluded from playlist) : {best_match['artist']} {best_match['title']} ; id = {best_match['download_id']}")
+                print(f"Local found : {best_match['artist']} {best_match['title']} ; id = {best_match['download_id']}")
                 print("-"*30)
                 already_local.append(best_match)
                 full_tracks_ids.append(best_match['download_id'])
