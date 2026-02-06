@@ -44,7 +44,12 @@ def parse_youtube_video(video_entry, target_artist, target_title):
             detected_infos = {'artist': p2, 'title': p1_clean}
     # 3. Fallback : UPLOADER IS THE ARTIST
     # On compare l'uploader avec l'artiste cible, et le titre complet avec le titre cible
-    score_uploader = utility.similarity(target_artist, target_title, yt_uploader, yt_clean_title)
+    yt_title_no_feat = utility.clean_artist_name(yt_clean_title)
+    score_uploader_raw = utility.similarity(target_artist, target_title, yt_uploader, yt_clean_title)
+    score_uploader_clean = utility.similarity(target_artist, target_title, yt_uploader, yt_title_no_feat)
+    
+    # On prend le meilleur des deux scores
+    score_uploader = max(score_uploader_raw, score_uploader_clean) 
     
     if score_uploader > best_score:
         best_score = score_uploader
