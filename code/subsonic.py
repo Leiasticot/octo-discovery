@@ -308,9 +308,11 @@ def flag_for_cleaning(SUBSONIC_URL, SUBSONIC_USER, SUBSONIC_PASS, old_playlist_d
     # get list of all the ID that are starred or inside a playlist from the OLD weekly discovery
     matches = list(set(playlist_or_starred) & set(external_downloaded))
     already_local = old_playlist_datas.get("already_local", [])
-    all_tracks_ids = old_playlist_datas.get("all_tracks_ids", [])
+    already_local_ids = [track['download_id'] for track in already_local if 'download_id' in track]
 
-    not_delete = set(already_local) | set(matches)
+    not_delete = set(already_local_ids) | set(matches)
+
+    all_tracks_ids = old_playlist_datas.get("all_tracks_ids", [])
 
     to_delete = []
 
