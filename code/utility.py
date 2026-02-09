@@ -2,22 +2,27 @@ from thefuzz import fuzz
 import re
 
 def normalize_text(text):
+    """
+    Normalizes text by converting to lowercase, replacing special characters,
+    and removing punctuation to improve comparison accuracy.
+    """
     if not text:
         return ""
     text = text.lower()
-    # Remplacement des caractères spéciaux et leet speak
     text = text.replace('$', 's').replace('€', 'e').replace('@', 'a')
     text = text.replace('“', '"').replace('”', '"') # Gestion smart quotes
-    # On garde seulement les lettres, chiffres et espaces
     text = re.sub(r'[^\w\s]', '', text) 
     return text.strip()
 
 def remove_youtube_junk(text):
+    """
+    Removes common YouTube title suffixes and metadata tags that interfere with matching.
+    """
     if not text:
         return ""
     text = text.replace('“', '').replace('”', '').replace('"', '')
     junk_patterns = [
-            # ANGLAIS
+            # English tags
             r"\(?official video\)?", 
             r"\(?official audio\)?",
             r"\(?official lyric video\)?",
@@ -30,9 +35,10 @@ def remove_youtube_junk(text):
             r"\(?live\)?",
             r"\(?visualizer\)?",
             r"\(?from.*?\)",       
-            r"\[?audio\]?",        # Enlève [Audio] ou (Audio)
-            r"\[?mv\]?",           # Enlève [MV] ou (MV)
-            r"\[?video\]?",        # Enlève [Video]
+            r"\[?audio\]?",
+            r"\[?mv\]?",          
+            r"\[?video\]?",       
+            # French/Spanish tags
             r"\(?clip officiel\)?",
             r"\(?clip vidéo\)?",
             r"\(?audio officiel\)?",
@@ -49,25 +55,29 @@ def remove_youtube_junk(text):
     return cleaned
 
 def clean_artist_name(artist):
+    """
+    Removes featuring, collaborators, and 'vs' from artist names 
+    to isolate the primary artist for cleaner searches.
+    """
     if not artist: return ""
     
-    # 1. Cas : (feat. xxx) ou [feat. xxx]
-    # On cherche : espace optionnel + ( ou [ + espace optionnel + feat/ft + tout le reste
-    # On force un espace ou une fin de chaine après le mot clé pour éviter de couper "features"
     pattern_parenthesis = r"(?i)\s*[\(\[]\s*(?:feat|ft|featuring|vs|x|with|&)\.?\s+.*"
     artist = re.sub(pattern_parenthesis, "", artist)
 
-    # 2. Cas : feat. xxx (sans parenthèse)
-    # On cherche : espace + feat/ft + espace + tout le reste
     pattern_no_parenthesis = r"(?i)\s+(?:feat|ft|featuring|vs|x|with|&)\.?\s+.*"
     artist = re.sub(pattern_no_parenthesis, "", artist)
 
     return artist.strip()
 
 def clean_title(title):
+    """Removes all non-alphanumeric characters from a track title."""
     return re.sub(r'[^\w\s]', '', title).strip()
 
 def similarity(expected_artist, expected_title, found_artist, found_title):
+    """
+    Calculates a similarity score (0.0 to 1.0) between expected and found metadata.
+    Includes specific protections for short names to avoid false positives.
+    """
     ea = normalize_text(expected_artist)
     et = normalize_text(expected_title)
     fa = normalize_text(found_artist)
@@ -102,7 +112,7 @@ def similarity(expected_artist, expected_title, found_artist, found_title):
     return final_score / 100.0
 
 def sanitize_filename(name):
-    """Remplace les caractères interdits dans les noms de fichiers."""
+    """Sanitizes strings for safe filesystem usage."""
     if not name: return "Unknown"
     # On garde alphanumérique, espaces, tirets, points
     return "".join([c for c in name if c.isalnum() or c in " .-_()"]).strip()
